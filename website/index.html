@@ -511,45 +511,46 @@
           </div>
         </div>
 
-        <!-- App marquee — full bleed below the split -->
-        <div
-          id="hero-apps-showcase"
-          class="relative left-1/2 right-1/2 w-screen -translate-x-1/2 mt-14 py-6 sm:py-8 border-y border-gray-100 bg-white"
-        >
-          <div class="space-y-3 sm:space-y-4">
-            <div class="overflow-hidden py-1.5 sm:py-2">
-              <div class="flex items-center gap-3 px-3 sm:px-4 app-marquee-track app-marquee-left" id="hero-app-marquee-1"></div>
-            </div>
-            <div class="overflow-hidden py-1.5 sm:py-2">
-              <div class="flex items-center gap-3 px-3 sm:px-4 app-marquee-track app-marquee-right" id="hero-app-marquee-2"></div>
-            </div>
-          </div>
-          <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-6 sm:mt-8 flex justify-center">
-            <a
-              href="./catalog/"
-              class="inline-flex items-center gap-2 rounded-xl border border-black bg-black text-white px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-white hover:text-black transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
-            >
-              See all available apps
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        </div>
       </div>
 
-      <!-- Features Section -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-20" id="features">
-        <div class="text-center mb-16 sm:mb-20">
-          <span class="text-blue-600 font-bold tracking-wider uppercase text-xs mb-2 block">Powerful Capabilities</span>
-          <h2 class="text-3xl sm:text-5xl font-bold font-sans mb-6 text-gray-900 tracking-tight">Everything you need to run a homelab</h2>
-          <p class="text-lg text-gray-500 max-w-2xl mx-auto font-sans leading-relaxed">
-            Yantr gives you the power of a cloud platform on your own hardware. No PhD in Kubernetes required.
-          </p>
+      <!-- App Catalog Showcase -->
+      <section id="hero-apps-showcase" class="relative left-1/2 right-1/2 w-screen -translate-x-1/2 min-h-screen flex flex-col items-center justify-center border-t border-gray-100 bg-white overflow-hidden py-20">
+
+        <!-- Edge fade masks -->
+        <div class="pointer-events-none absolute inset-y-0 left-0 w-32 sm:w-48 z-10" style="background: linear-gradient(to right, white 0%, transparent 100%)"></div>
+        <div class="pointer-events-none absolute inset-y-0 right-0 w-32 sm:w-48 z-10" style="background: linear-gradient(to left, white 0%, transparent 100%)"></div>
+
+        <!-- Headline -->
+        <div class="relative z-20 text-center px-4 mb-12">
+          <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400 mb-3">App Catalog</p>
+          <h2 class="text-3xl sm:text-5xl font-bold font-sans tracking-tight text-gray-900 mb-4">100+ apps, one command away</h2>
+          <p class="text-gray-500 font-sans max-w-xl mx-auto text-base leading-relaxed">From AI models and media servers to password managers and note-taking tools — browse, pick, deploy.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" id="features-grid-container">
-          <!-- Features loaded via JS -->
+        <!-- Row 1: left -->
+        <div class="overflow-hidden py-2 w-full">
+          <div class="flex items-center gap-3 app-marquee-track app-marquee-left" id="hero-app-marquee-1"></div>
         </div>
-      </div>
+        <!-- Row 2: right -->
+        <div class="overflow-hidden py-2 w-full">
+          <div class="flex items-center gap-3 app-marquee-track app-marquee-right" id="hero-app-marquee-2"></div>
+        </div>
+        <!-- Row 3: left slower -->
+        <div class="overflow-hidden py-2 w-full">
+          <div class="flex items-center gap-3 app-marquee-track app-marquee-left" style="animation-duration: 55s" id="hero-app-marquee-3"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="relative z-20 mt-12">
+          <a
+            href="./catalog/"
+            class="inline-flex items-center gap-2 rounded-xl border border-black bg-black text-white px-6 py-3 text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+          >
+            Browse the full catalog
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
 
       <!-- Architecture Diagram Section -->
       <section
@@ -1006,6 +1007,7 @@
 
           const rowOne = document.getElementById("hero-app-marquee-1");
           const rowTwo = document.getElementById("hero-app-marquee-2");
+          const rowThree = document.getElementById("hero-app-marquee-3");
           if (!rowOne || !rowTwo) return;
 
           const shuffled = [...apps];
@@ -1014,19 +1016,20 @@
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
           }
 
-          const rows = [[], []];
+          const rows = [[], [], []];
           shuffled.forEach((app, index) => {
-            rows[index % 2].push(app);
+            rows[index % 3].push(app);
           });
 
           const renderMarqueeRow = (element, list) => {
-            if (!list.length) return;
+            if (!element || !list.length) return;
             const singleSet = list.map((app) => createAppPillMarkup(app)).join("");
             element.innerHTML = singleSet + singleSet;
           };
 
           renderMarqueeRow(rowOne, rows[0]);
           renderMarqueeRow(rowTwo, rows[1]);
+          renderMarqueeRow(rowThree, rows[2]);
         } catch (error) {
           console.error("Failed to load hero app showcase:", error);
         }
@@ -1100,278 +1103,7 @@
         }
       }
 
-      function initFeatures() {
-        const svgFeatures = [
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>`,
-            title: "Zero OS Lock-in",
-            desc: "Runs alongside macOS, Windows, or Linux. No custom ISOs, no formatting required.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
-            title: "1-Click Deploys",
-            desc: "Launch complex stacks like Ollama + Open WebUI in seconds with pre-configured templates.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-            title: "Disposable Apps",
-            desc: "Set expiration timers for apps. Great for testing tools without cluttering your system.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>`,
-            title: "Isolated AI Stack",
-            desc: "First-class support for AI agents. No Python conflicts, no CUDA version mismatches.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>`,
-            title: "Filesystem Safe",
-            desc: "All data lives in isolated Docker volumes. Your host OS files are never touched.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>`,
-            title: "Volume Browser",
-            desc: "Manage app data directly from the browser with built-in WebDAV support.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>`,
-            title: "S3 Backups",
-            desc: "One-click backup and restore of entire volumes to any S3-compatible storage.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-            title: "GPU Passthrough",
-            desc: "Automatic GPU detection and passthrough for accelerated local LLM inference.",
-          },
-          {
-            icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`,
-            title: "Auto Cleanup",
-            desc: "Intelligent garbage collection removes unused images and networks to save space.",
-          },
-        ];
 
-        // Extended pool of features using emojis
-        const emojiFeatures = [
-          {
-            emoji: "🐳",
-            title: "Docker Native",
-            desc: "Runs alongside your OS. No custom ISO or system takeover required.",
-          },
-          {
-            emoji: "🧩",
-            title: "Multiple Instances",
-            desc: "Run the same app multiple times with different configurations.",
-          },
-          {
-            emoji: "✨",
-            title: "Premium UI",
-            desc: "Modern Vue.js interface that feels fast and polished with dark mode support.",
-          },
-          {
-            emoji: "🧠",
-            title: "Auto Configuration",
-            desc: "Automatic port mapping and smart defaults—launch apps without spending 10 minutes on setup.",
-          },
-          {
-            emoji: "🆕",
-            title: "Always Latest Apps",
-            desc: "Ships the newest app releases regardless of your Yantr version—updates from source.",
-          },
-          {
-            emoji: "🗑️",
-            title: "Zero Commitment",
-            desc: "Install, use, and delete with no residue. Zero modification to your host system.",
-          },
-          {
-            emoji: "📦",
-            title: "100% Docker Compose",
-            desc: "Generates standard Docker Compose files you can take anywhere. No vendor lock-in.",
-          },
-          {
-            emoji: "🎛️",
-            title: "On-Demand Resources",
-            desc: "Nothing runs unless you start it. Only use resources for apps you actually need.",
-          },
-          {
-            emoji: "🤖",
-            title: "Complete AI Agent Suite",
-            desc: "First platform to ship isolated AI agents: Ollama, Open WebUI, Perplexica, OpenCode, and more.",
-          },
-          {
-            emoji: "🔗",
-            title: "WebDAV Support",
-            desc: "Built-in WebDAV access for syncing files between volumes or machines using rclone.",
-          },
-          {
-            emoji: "🚀",
-            title: "Single Docker Command",
-            desc: "Launch Yantr in seconds with one command. Access at http://localhost immediately.",
-          },
-          {
-            emoji: "🔒",
-            title: "Isolated Containers",
-            desc: "No Python environment conflicts, CUDA version mismatches, or shared dependency hell.",
-          },
-          {
-            emoji: "🧭",
-            title: "100+ App Catalog",
-            desc: "Curated catalog of high-quality self-hosted tools across AI, media, privacy, and more.",
-          },
-          {
-            emoji: "🌍",
-            title: "Remote Access Ready",
-            desc: "Works seamlessly with Tailscale or Cloudflare Tunnels for secure remote access.",
-          },
-          {
-            emoji: "🔄",
-            title: "Data Migration",
-            desc: "Easy backup and restore for moving volumes between machines or creating snapshots.",
-          },
-          {
-            emoji: "🧬",
-            title: "Cross-Platform",
-            desc: "Runs on Linux, macOS, and Windows with Docker Desktop. Use your existing hardware.",
-          },
-        ];
-
-        // Format emoji features to match svg features structure (using emoji as icon)
-        const formattedEmojiFeatures = emojiFeatures.map((f) => ({
-          icon: `<span class="text-2xl">${f.emoji}</span>`,
-          title: f.title,
-          desc: f.desc,
-          isEmoji: true,
-        }));
-
-        // Initial set of features (mix of SVG and emoji ones)
-        const allFeatures = [...svgFeatures, ...formattedEmojiFeatures];
-
-        // Shuffle all features to get random initial set
-        for (let i = allFeatures.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [allFeatures[i], allFeatures[j]] = [allFeatures[j], allFeatures[i]];
-        }
-
-        // Visible features (first 9)
-        const visibleFeatures = allFeatures.slice(0, 9);
-        // Hidden features (pool)
-        const hiddenFeatures = allFeatures.slice(9);
-
-        const container = document.getElementById("features-grid-container");
-        if (!container) return;
-
-        container.innerHTML = "";
-
-        const FeatureCard = (feature, index) => {
-          const cardContainer = document.createElement("div");
-          cardContainer.className = "perspective-1000 group h-full";
-          cardContainer.setAttribute("data-index", index);
-
-          // Inner container for flip effect
-          const inner = document.createElement("div");
-          inner.className = "relative w-full h-full duration-700 preserve-3d transition-all duration-500 opacity-0 translate-y-8 feature-card-inner";
-
-          // Helper to create card face content
-          // We need at least one face to be relative to give the container height,
-          // but for a flip card usually both need to be absolute to overlap perfectly.
-          // Solution: Set a min-h on the container or make the front face relative and the back absolute.
-          // However, for 3D flip, typically both are absolute occupying the same space.
-          // We will make the container have a fixed aspect ratio or min-height.
-
-          const createFace = (feat, isBack = false) => `
-            <div class="${isBack ? "absolute inset-0" : "relative"} w-full h-full p-8 bg-white border border-gray-100 rounded-2xl hover:border-black transition-colors shadow-sm hover:shadow-xl backface-hidden flex flex-col ${isBack ? "rotate-y-180 bg-gray-50" : ""}">
-                <div class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mb-6 text-black group-hover:scale-110 transform transition-transform duration-500">
-                    ${feat.icon}
-                </div>
-                <h3 class="text-xl font-bold font-sans mb-3 text-black">${feat.title}</h3>
-                <p class="text-sm text-gray-500 leading-relaxed font-sans flex-grow">${feat.desc}</p>
-                 <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
-            </div>
-          `;
-
-          // Front Face (Initially Visible)
-          inner.innerHTML = createFace(feature) + createFace(feature, true); // Prepare back face structure
-
-          cardContainer.appendChild(inner);
-          return { element: cardContainer, feature: feature, inner: inner };
-        };
-
-        const activeCards = visibleFeatures.map((feature, index) => {
-          const cardObj = FeatureCard(feature, index);
-          container.appendChild(cardObj.element);
-          return cardObj;
-        });
-
-        // Entrance Animation
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                activeCards.forEach((card, index) => {
-                  setTimeout(() => {
-                    requestAnimationFrame(() => {
-                      card.inner.classList.remove("opacity-0", "translate-y-8");
-                    });
-                  }, index * 100);
-                });
-
-                // Start flipping after entrance
-                startFlipping();
-                observer.disconnect();
-              }
-            });
-          },
-          { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
-        );
-
-        observer.observe(container);
-
-        function startFlipping() {
-          setInterval(() => {
-            if (document.hidden || hiddenFeatures.length === 0) return;
-
-            // Pick a random noticeable card to flip
-            const cardIndex = Math.floor(Math.random() * activeCards.length);
-            const cardObj = activeCards[cardIndex];
-
-            // Pick a new feature from hidden pool
-            const newFeatureIndex = Math.floor(Math.random() * hiddenFeatures.length);
-            const newFeature = hiddenFeatures[newFeatureIndex]; // Get feature
-
-            // Swap features in pools
-            hiddenFeatures[newFeatureIndex] = cardObj.feature; // Put old feature back in pool
-            cardObj.feature = newFeature; // Update card with new feature
-
-            // Perform Flip
-            const inner = cardObj.inner;
-            const isFlipped = inner.classList.contains("rotate-y-180");
-
-            // Update the "back" face (the one we are flipping TO)
-            const frontFace = inner.children[0];
-            const backFace = inner.children[1];
-            const nextFace = isFlipped ? frontFace : backFace;
-
-            // Update content of the next face
-            nextFace.innerHTML = `
-                <div class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mb-6 text-black group-hover:scale-110 transform transition-transform duration-500">
-                    ${newFeature.icon}
-                </div>
-                <h3 class="text-xl font-bold font-sans mb-3 text-black">${newFeature.title}</h3>
-                <p class="text-sm text-gray-500 leading-relaxed font-sans flex-grow">${newFeature.desc}</p>
-                 <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
-             `;
-
-            // Trigger rotation
-            if (isFlipped) {
-              inner.classList.remove("rotate-y-180");
-            } else {
-              inner.classList.add("rotate-y-180");
-            }
-          }, 4000); // Flip every 4 seconds
-        }
-      }
 
       function loadRandomScreenshot() {
         const gifs = [
@@ -1483,7 +1215,6 @@
         loadHeroAppShowcase();
         loadStars();
         loadContributors();
-        initFeatures();
         loadRandomScreenshot();
         initHeroAnimation();
       });
