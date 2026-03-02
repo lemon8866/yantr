@@ -24,9 +24,7 @@
   "website": "https://tailscale.com",
   "dependencies": [],
   "notes": [
-    "First-time setup requires authentication via web browser",
     "Port 41641 UDP must be open in your firewall for peer connections",
-    "Uses /var/lib/tailscale for persistent state and authentication",
-    "Requires TAILSCALE_AUTH_KEY for unattended operation (see docs)"
+    "Requires TAILSCALE_AUTH_KEY for unattended operation — generate one at https://login.tailscale.com/admin/settings/keys"
   ]
 }
