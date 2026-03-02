@@ -243,6 +243,12 @@ async function fetchAllContributors() {
 
 async function fetchGitHubData() {
   const githubDataPath = path.join(websiteDir, 'github-data.json');
+
+  if (fs.existsSync(githubDataPath)) {
+    console.log('\n🐙 GitHub data already present — skipping fetch.');
+    return;
+  }
+
   console.log('\n🐙 Fetching GitHub data...');
 
   try {
