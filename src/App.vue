@@ -1,14 +1,15 @@
 <script setup>
 import { useRoute } from "vue-router";
-import { Box, Boxes, Layers, HardDrive, ClipboardList, Send, Github, Heart, Home, Moon, Sun, Compass, Languages, Check, ChevronDown } from "lucide-vue-next";
+import { Box, Boxes, Layers, HardDrive, ClipboardList, Send, Github, Heart, Home, Moon, Sun, Compass, Check, ChevronDown } from "lucide-vue-next";
 import NotificationBanner from './components/NotificationBanner.vue';
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 const route = useRoute();
 const { locale, t } = useI18n();
 const theme = ref("light");
 const showLanguageMenu = ref(false);
+const languageMenuRef = ref(null);
 
 const isActive = (name) => route.name === name;
 
@@ -47,10 +48,31 @@ const languages = [
   { code: 'ru', name: 'Русский', flag: '🇷🇺' }
 ];
 
+const activeLanguage = computed(() => languages.find(l => l.code === locale.value) || languages[0]);
+
+const handleOutsideClick = (e) => {
+  if (languageMenuRef.value && !languageMenuRef.value.contains(e.target)) {
+    showLanguageMenu.value = false;
+  }
+};
+
 onMounted(() => {
   const stored = localStorage.getItem("yantr-theme");
   const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   setTheme(stored || (prefersDark ? "dark" : "light"));
+
+  // Auto-detect browser language on first visit
+  if (!localStorage.getItem('yantr-locale')) {
+    const browserLang = navigator.language?.slice(0, 2);
+    const match = languages.find(l => l.code === browserLang);
+    if (match) setLocale(match.code);
+  }
+
+  document.addEventListener('click', handleOutsideClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleOutsideClick);
 });
 </script>
 
@@ -163,38 +185,53 @@ onMounted(() => {
           </span>
         </a>
         <!-- Language Toggle -->
-        <div class="relative">
+        <div class="relative" ref="languageMenuRef">
           <button
             type="button"
             @click="toggleLanguageMenu"
             class="action-btn group relative w-12 h-12 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:shadow-md hover:shadow-gray-900/10 dark:text-zinc-300 dark:hover:bg-zinc-800/50 dark:hover:shadow-black/40 transition-all duration-300 ease-out"
             :title="t('nav.language')"
           >
-            <Languages :size="20" class="group-hover:scale-110 transition-transform duration-300" />
+            <span class="text-base leading-none select-none">{{ activeLanguage.flag }}</span>
             <span
               class="absolute left-full ml-3 px-3 py-1.5 bg-black text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none dark:bg-white dark:text-black"
             >
-              {{ t('nav.language') }}
+              {{ activeLanguage.name }}
             </span>
           </button>
-          
+
           <!-- Language Dropdown Menu -->
-          <div
-            v-if="showLanguageMenu"
-            class="absolute left-full ml-3 bottom-0 bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-gray-200 dark:border-zinc-700 py-2 min-w-[160px] z-50"
+          <transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 translate-x-2"
+            enter-to-class="opacity-100 translate-x-0"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-x-0"
+            leave-to-class="opacity-0 translate-x-2"
           >
-            <button
-              v-for="lang in languages"
-              :key="lang.code"
-              @click="setLocale(lang.code)"
-              class="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
-              :class="locale === lang.code ? 'bg-gray-50 dark:bg-zinc-800' : ''"
+            <div
+              v-if="showLanguageMenu"
+              class="absolute left-full ml-3 bottom-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 py-1.5 min-w-[180px] z-50 overflow-hidden"
             >
-              <span class="text-xl">{{ lang.flag }}</span>
-              <span class="flex-1 text-left text-sm font-medium">{{ lang.name }}</span>
-              <Check v-if="locale === lang.code" :size="16" class="text-blue-600 dark:text-blue-400" />
-            </button>
-          </div>
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                @click="setLocale(lang.code)"
+                class="w-full px-3 py-2 flex items-center gap-3 transition-colors relative"
+                :class="locale === lang.code
+                  ? 'bg-gray-50 dark:bg-zinc-800 text-black dark:text-white'
+                  : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/60 hover:text-black dark:hover:text-white'"
+              >
+                <span
+                  v-if="locale === lang.code"
+                  class="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-blue-500"
+                />
+                <span class="text-lg leading-none select-none">{{ lang.flag }}</span>
+                <span class="flex-1 text-left text-sm font-medium tracking-tight">{{ lang.name }}</span>
+                <Check v-if="locale === lang.code" :size="12" class="text-blue-500 shrink-0" />
+              </button>
+            </div>
+          </transition>
         </div>
         <!-- Theme Toggle -->
         <button
@@ -252,29 +289,44 @@ onMounted(() => {
             type="button"
             @click="toggleLanguageMenu"
             class="flex flex-col items-center gap-1 min-w-[64px] min-h-[52px] px-3 py-2 rounded-xl transition-all active:scale-95 text-gray-600 dark:text-zinc-400 justify-center"
-            :title="t('nav.language')"
+            :title="activeLanguage.name"
           >
-            <Languages :size="22" />
-            <span class="text-xs font-medium">{{ t('nav.language') }}</span>
+            <span class="text-xl leading-none select-none">{{ activeLanguage.flag }}</span>
+            <span class="text-xs font-medium">{{ activeLanguage.name }}</span>
           </button>
           
           <!-- Mobile Language Dropdown Menu -->
-          <div
-            v-if="showLanguageMenu"
-            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-gray-200 dark:border-zinc-700 py-2 min-w-[160px] z-50"
+          <transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-2"
           >
-            <button
-              v-for="lang in languages"
-              :key="lang.code"
-              @click="setLocale(lang.code)"
-              class="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
-              :class="locale === lang.code ? 'bg-gray-50 dark:bg-zinc-800' : ''"
+            <div
+              v-if="showLanguageMenu"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 py-1.5 min-w-[180px] z-50 overflow-hidden"
             >
-              <span class="text-xl">{{ lang.flag }}</span>
-              <span class="flex-1 text-left text-sm font-medium">{{ lang.name }}</span>
-              <Check v-if="locale === lang.code" :size="16" class="text-blue-600 dark:text-blue-400" />
-            </button>
-          </div>
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                @click="setLocale(lang.code)"
+                class="w-full px-3 py-2 flex items-center gap-3 transition-colors relative"
+                :class="locale === lang.code
+                  ? 'bg-gray-50 dark:bg-zinc-800 text-black dark:text-white'
+                  : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/60 hover:text-black dark:hover:text-white'"
+              >
+                <span
+                  v-if="locale === lang.code"
+                  class="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-blue-500"
+                />
+                <span class="text-lg leading-none select-none">{{ lang.flag }}</span>
+                <span class="flex-1 text-left text-sm font-medium tracking-tight">{{ lang.name }}</span>
+                <Check v-if="locale === lang.code" :size="12" class="text-blue-500 shrink-0" />
+              </button>
+            </div>
+          </transition>
         </div>
 
         <button
